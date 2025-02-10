@@ -24,9 +24,6 @@ Base.prepare(engine, reflect=True)
 Measurement = Base.classes.measurement
 Station = Base.classes.station
 
-# Create our session (link) from Python to the DB
-session = Session(engine)
-
 #################################################
 # Flask Setup
 #################################################
@@ -47,63 +44,57 @@ def welcome():
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
         f"/api/v1.0/<start><br/>"
-        f"/api/v1.0/temp/<start>/<end>"
+        f"/api/v1.0/<start>/<end><br/>"
     )
 
 @app.route("/api/v1.0/precipitation")
 def precipitation():
-    # link session to the database
-    session = Session(engine)
-    '''Return the precipitation data for the last year '''
+    """Return the precipitation data for the last year"""
     prev_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
-    precipitation = session.query(Measurement.date, Measurement.prcp).\
-        filter(Measurement.date >= prev_year).all()
-    session.close()
+    # link session to the database
+    with Session(engine) as session:
+        precipitation = session.query(Measurement.date, Measurement.prcp).\
+            filter(Measurement.date >= prev_year).all()
+    #session.close()
     precip = {date: prcp for date, prcp in precipitation}
     return jsonify(precip)
 
 @app.route("/api/v1.0/stations")
 def stations():
+    """Return a JSON list of stations from the dataset"""
     # link session to the database
-    session = Session(engine)
-    '''Return a JSON list of stations from the dataset'''
-    results = session.query(Station.station).all()
-    session.close()
+    with Session(engine) as session:
+        results = session.query(Station.station).all()
+    #session.close()
     stations = list(np.ravel(results))
     return jsonify(stations=stations)
 
 @app.route("/api/v1.0/tobs")
 def temp_monthly():
-    # link session to the database
-    session = Session(engine)
-    '''Return the temperature observations for the previous year'''
+    """Return the temperature observations (TOBS) for the previous year"""
     prev_year = dt.date(2017, 8, 23) - dt.timedelta(days=365)
-    results = session.query(Measurement.tobs).\
-        filter(Measurement.station == 'USC00519281').\
-        filter(Measurement.date >= prev_year).all()
-    session.close()
-    temps = list(np.ravel(results))
-    return jsonify(temps=temps)
-
-@app.route("/api/v1.0/temp/<start>")
-@app.route("/api/v1.0/temp/<start>/<end>")
-def stats(start=None, end=None):
     # link session to the database
-    session = Session(engine)
-    '''Return the temperature statistics for the specified date range'''
-    sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
-    
-    if not end:
-        results = session.query(*sel).\
-            filter(Measurement.date >= start).all()
-    else:
-        results = session.query(*sel).\
-            filter(Measurement.date >= start).\
-            filter(Measurement.date <= end).all()
-    
-    session.close()
+    with Session(engine) as session:
+        results = session.query(Measurement.date, Measurement.tobs).\
+            filter(Measurement.station == 'USC00519281').\
+            filter(Measurement.date >= prev_year).all()
     temps = list(np.ravel(results))
     return jsonify(temps=temps)
 
-if __name__ == '__main__':
+@app.route("/api/v1.0/<start>")
+@app.route("/api/v1.0/<start>/<end>")
+def stats(start=None, end=None):
+    """Return the temperature statistics for the specified range"""
+    sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
+    with Session(engine) as session:  
+        if not end:
+            results = session.query(*sel).filter(Measurement.date >= start).all()
+        else:
+            results = session.query(*sel).\
+                filter(Measurement.date >= start).\
+                filter(Measurement.date <= end).all()
+    temps = list(np.ravel(results))
+    return jsonify(temps=temps)
+
+if __name__ == "__main__":
     app.run(debug=True)
