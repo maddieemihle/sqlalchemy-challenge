@@ -21,9 +21,21 @@ Next, a query was designed to calculate the total number of stations in the data
 In this secion, a Flask API was created based on the queries devloped in Part 1. Flask was used to create six routes and each root was queried and returned using JSON representaiton of the dictonary. 
 
 ## Results: 
-### Part 1: Analyze and Explore the Climate Data 
-After taking all the steps needed, the results showed that the months with the most percipitation were around July-August. The station with the greatest number of observations was station USC00519281. It was found that in this most-active station, the lowest temperatures found were 54.0, the highest temperatures were 85.0, and the average temperatures were 71.66. 
+### Analyze and Explore the Climate Data 
+Based on the data found when performing an exploratory precipitation analysis, the most recent date within the dataset is August 23, 2017. From here, a query was designed to retrieve the last 12 months of precipitation data and plot it on a graph. 
 
+ ![alt text](https://github.com/maddieemihle/sqlalchemy-challenge/blob/main/Images/precipitation.png)
+
+This allowed for the visualization and analysis of precipitation levels for the last twelve months in Hawaii. The results showed that the months with the most percipitation were around July-August.
+
+Based on the data found in the Exploratory Station Analysis, I was able to determine which station had the greatest number of observations. Currently, station USC00519281 was the station with the greatest number of observations. This was found by designing a query to find the most active stations and list in descending order. I calculated the lowest, highest, and average temperatures from there. Based on the results, the data told me that: 
+* The lowest temperature recorded at station USC00519281 is 54.0 degrees Fahrenheit.
+* The highest temperature recorded at station USC00519281 is 85.0 degrees Fahrenheit.
+* The average temperature recorded at station USC00519281 is 71.66 degrees Fahrenheit.
+
+Afterwards, I plotted using a histogram to show the temperature frequency for station USC00519281.
+
+ ![alt text](https://github.com/maddieemihle/sqlalchemy-challenge/blob/main/Images/most_act_temperature_frequency.png)
 
 ## Methods Used
 * Python 
@@ -37,7 +49,6 @@ After taking all the steps needed, the results showed that the months with the m
 
 ## Software Used 
 Coding was preformed via VSCode using Jupyter notebooks and app.py. 
-
 
 ## References
 Data for this dataset was given by _edX Boot Camp LLC (2025), and is intended for educational purposes only. Menne, M.J., I. Durre, R.S. Vose, B.E. Gleason, and T.G. Houston, 2012: An overview of the Global Historical Climatology Network-Daily Database. Journal of Atmospheric and Oceanic Technology, 29, 897-910, https://journals.ametsoc.org/view/journals/atot/29/7/jtech-d-11-00103_1.xml.
